@@ -212,6 +212,12 @@ func lateInitialize(in *svcapitypes.DBInstanceParameters, out *svcsdk.DescribeDB
 		in.PreferredBackupWindow = aws.LateInitializeStringPtr(in.PreferredBackupWindow, db.PreferredBackupWindow)
 		in.StorageEncrypted = aws.LateInitializeBoolPtr(in.StorageEncrypted, db.StorageEncrypted)
 		in.StorageType = aws.LateInitializeStringPtr(in.StorageType, db.StorageType)
+		if len(in.DBSecurityGroups) == 0 && len(db.DBSecurityGroups) != 0 {
+			in.DBSecurityGroups = make([]string, len(db.DBSecurityGroups))
+			for i, val := range db.DBSecurityGroups {
+				in.DBSecurityGroups[i] = aws.StringValue(val.DBSecurityGroupName)
+			}
+		}
 	}
 	in.AutoMinorVersionUpgrade = aws.LateInitializeBoolPtr(in.AutoMinorVersionUpgrade, db.AutoMinorVersionUpgrade)
 	in.AvailabilityZone = aws.LateInitializeStringPtr(in.AvailabilityZone, db.AvailabilityZone)
@@ -241,12 +247,6 @@ func lateInitialize(in *svcapitypes.DBInstanceParameters, out *svcsdk.DescribeDB
 		in.Port = aws.LateInitializeInt64Ptr(in.Port, db.Endpoint.Port)
 	}
 
-	if len(in.DBSecurityGroups) == 0 && len(db.DBSecurityGroups) != 0 {
-		in.DBSecurityGroups = make([]string, len(db.DBSecurityGroups))
-		for i, val := range db.DBSecurityGroups {
-			in.DBSecurityGroups[i] = aws.StringValue(val.DBSecurityGroupName)
-		}
-	}
 	if aws.StringValue(in.DBSubnetGroupName) == "" && db.DBSubnetGroup != nil {
 		in.DBSubnetGroupName = db.DBSubnetGroup.DBSubnetGroupName
 	}
